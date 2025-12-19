@@ -33,6 +33,24 @@ pnpm build
 }
 ```
 
+### 带环境变量配置
+
+如果需要设置默认音频文件等，可以添加环境变量:
+
+```json
+{
+  "mcpServers": {
+    "windows-notify": {
+      "command": "node",
+      "args": ["D:/2024Dev/2026/MCP/windows_notify_mcp/dist/index.js"],
+      "env": {
+        "DEFAULT_SOUND": "D:/sounds/notification.mp3"
+      }
+    }
+  }
+}
+```
+
 ### 工具说明
 
 #### notify
