@@ -14,11 +14,19 @@ import { exec } from 'child_process';
 // 从环境变量获取默认音频文件
 const DEFAULT_SOUND = process.env.DEFAULT_SOUND || '';
 
-// 播放自定义音频文件
+// 播放自定义音频文件（支持 mp3, wav 等格式）
 function playSound(soundFile: string): void {
-  const resolvedPath = path.resolve(soundFile);
-  // 使用 PowerShell 播放音频
-  exec(`powershell -c "(New-Object Media.SoundPlayer '${resolvedPath}').PlaySync()"`, (err) => {
+  const resolvedPath = path.resolve(soundFile).replace(/\\/g, '/');
+  // 使用 Windows Media Player COM 对象播放音频
+  const script = `
+    $player = New-Object -ComObject WMPlayer.OCX;
+    $player.URL = '${resolvedPath}';
+    $player.controls.play();
+    Start-Sleep -Milliseconds 500;
+    while ($player.playState -eq 3) { Start-Sleep -Milliseconds 100 };
+    $player.close();
+  `;
+  exec(`powershell -Command "${script.replace(/\n/g, ' ')}"`, (err) => {
     if (err) {
       console.error('Failed to play sound:', err.message);
     }
