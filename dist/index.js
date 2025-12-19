@@ -5,6 +5,8 @@ import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprot
 import notifier from 'node-notifier';
 import path from 'path';
 import { exec } from 'child_process';
+// 从环境变量获取默认音频文件
+const DEFAULT_SOUND = process.env.DEFAULT_SOUND || '';
 // 播放自定义音频文件
 function playSound(soundFile) {
     const resolvedPath = path.resolve(soundFile);
@@ -103,15 +105,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             const notificationOptions = {
                 title,
                 message,
-                sound: soundFile ? false : sound, // 如果有自定义音频，禁用默认声音
+                sound: (soundFile || DEFAULT_SOUND) ? false : sound, // 如果有自定义音频，禁用默认声音
                 wait
             };
             if (icon) {
                 notificationOptions.icon = path.resolve(icon);
             }
-            // 播放自定义音频
-            if (soundFile) {
-                playSound(soundFile);
+            // 播放自定义音频（优先使用参数传入的，其次使用环境变量配置的）
+            const audioToPlay = soundFile || DEFAULT_SOUND;
+            if (audioToPlay && sound) {
+                playSound(audioToPlay);
             }
             notifier.notify(notificationOptions, (err, response) => {
                 if (err) {
