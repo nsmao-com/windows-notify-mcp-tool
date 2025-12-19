@@ -4,6 +4,17 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import notifier from 'node-notifier';
 import path from 'path';
+import { exec } from 'child_process';
+// 播放自定义音频文件
+function playSound(soundFile) {
+    const resolvedPath = path.resolve(soundFile);
+    // 使用 PowerShell 播放音频
+    exec(`powershell -c "(New-Object Media.SoundPlayer '${resolvedPath}').PlaySync()"`, (err) => {
+        if (err) {
+            console.error('Failed to play sound:', err.message);
+        }
+    });
+}
 // 创建 MCP 服务器
 const server = new Server({
     name: 'windows-notify-mcp',
@@ -40,6 +51,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                             type: 'boolean',
                             description: 'Whether to play a sound with the notification',
                             default: true
+                        },
+                        soundFile: {
+                            type: 'string',
+                            description: 'Optional path to a custom sound file (mp3, wav). If provided, this will be played instead of the default sound.',
+                            default: ''
                         },
                         wait: {
                             type: 'boolean',
@@ -82,16 +98,20 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
     if (name === 'notify') {
-        const { title, message, icon, sound = true, wait = false } = args;
+        const { title, message, icon, sound = true, soundFile, wait = false } = args;
         return new Promise((resolve) => {
             const notificationOptions = {
                 title,
                 message,
-                sound,
+                sound: soundFile ? false : sound, // 如果有自定义音频，禁用默认声音
                 wait
             };
             if (icon) {
                 notificationOptions.icon = path.resolve(icon);
+            }
+            // 播放自定义音频
+            if (soundFile) {
+                playSound(soundFile);
             }
             notifier.notify(notificationOptions, (err, response) => {
                 if (err) {
