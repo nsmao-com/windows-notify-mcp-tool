@@ -103,7 +103,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToo
     };
 
     return new Promise((resolve) => {
-      const notificationOptions: notifier.Notification = {
+      const notificationOptions: Record<string, unknown> = {
         title,
         message,
         sound,
@@ -114,7 +114,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToo
         notificationOptions.icon = path.resolve(icon);
       }
 
-      notifier.notify(notificationOptions, (err, response) => {
+      notifier.notify(notificationOptions as notifier.Notification, (err, response) => {
         if (err) {
           resolve({
             content: [{
@@ -143,7 +143,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToo
     };
 
     return new Promise((resolve) => {
-      const notificationOptions: notifier.Notification = {
+      const notificationOptions: Record<string, unknown> = {
         title,
         message,
         sound: true,
@@ -151,7 +151,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToo
         actions
       };
 
-      notifier.notify(notificationOptions, (err, response, metadata) => {
+      notifier.notify(notificationOptions as notifier.Notification, (err, response, metadata) => {
         if (err) {
           resolve({
             content: [{
