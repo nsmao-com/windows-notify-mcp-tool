@@ -45,6 +45,7 @@ pnpm build
 | message | string | 是 | 通知内容 |
 | icon | string | 否 | 图标文件路径 (png, jpg, ico) |
 | sound | boolean | 否 | 是否播放声音 (默认 true) |
+| soundFile | string | 否 | 自定义音频文件路径 (mp3, wav)，指定后将播放此音频而非默认声音 |
 | wait | boolean | 否 | 是否等待用户交互 (默认 false) |
 
 #### notify_with_actions
@@ -61,4 +62,8 @@ pnpm build
 
 ```
 发送一个通知，标题是"任务完成"，内容是"您的构建已完成"
+```
+
+```
+发送通知，标题"下载完成"，内容"文件已保存"，使用音频 D:/sounds/ding.mp3
 ```
