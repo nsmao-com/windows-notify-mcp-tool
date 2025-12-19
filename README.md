@@ -60,10 +60,42 @@ pnpm build
 
 ## 示例
 
-```
-发送一个通知，标题是"任务完成"，内容是"您的构建已完成"
+### 基本通知
+
+```json
+{
+  "title": "任务完成",
+  "message": "您的构建已完成"
+}
 ```
 
+### 带自定义音频的通知
+
+```json
+{
+  "title": "下载完成",
+  "message": "文件已保存",
+  "soundFile": "D:/sounds/ding.mp3"
+}
 ```
-发送通知，标题"下载完成"，内容"文件已保存"，使用音频 D:/sounds/ding.mp3
+
+### 带图标的通知
+
+```json
+{
+  "title": "提醒",
+  "message": "会议将在5分钟后开始",
+  "icon": "D:/icons/reminder.png",
+  "sound": true
+}
+```
+
+### 带操作按钮的通知
+
+```json
+{
+  "title": "新消息",
+  "message": "您有一条新消息",
+  "actions": ["查看", "忽略"]
+}
 ```
