@@ -9,6 +9,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import notifier from 'node-notifier';
 import path from 'path';
+import fs from 'fs';
 import { exec } from 'child_process';
 
 // 从环境变量获取默认音频文件
@@ -16,17 +17,20 @@ const DEFAULT_SOUND = process.env.DEFAULT_SOUND || '';
 
 // 播放自定义音频文件（支持 mp3, wav 等格式）
 function playSound(soundFile: string): void {
-  const resolvedPath = path.resolve(soundFile).replace(/\\/g, '/');
-  // 使用 Windows Media Player COM 对象播放音频
-  const script = `
-    $player = New-Object -ComObject WMPlayer.OCX;
-    $player.URL = '${resolvedPath}';
-    $player.controls.play();
-    Start-Sleep -Milliseconds 500;
-    while ($player.playState -eq 3) { Start-Sleep -Milliseconds 100 };
-    $player.close();
-  `;
-  exec(`powershell -Command "${script.replace(/\n/g, ' ')}"`, (err) => {
+  const resolvedPath = path.resolve(soundFile);
+  // 创建临时 PowerShell 脚本来播放音频
+  const tempScript = path.join(process.env.TEMP || '/tmp', `play-sound-${Date.now()}.ps1`);
+  const psContent = `
+Add-Type -AssemblyName presentationCore
+$mediaPlayer = New-Object System.Windows.Media.MediaPlayer
+$mediaPlayer.Open('${resolvedPath.replace(/\\/g, '\\\\')}')
+$mediaPlayer.Play()
+Start-Sleep -Seconds 3
+$mediaPlayer.Close()
+Remove-Item -Path '${tempScript.replace(/\\/g, '\\\\')}' -Force
+`;
+  fs.writeFileSync(tempScript, psContent);
+  exec(`powershell -ExecutionPolicy Bypass -File "${tempScript}"`, (err) => {
     if (err) {
       console.error('Failed to play sound:', err.message);
     }
